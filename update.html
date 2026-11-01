@@ -1,0 +1,98 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="app-build" content="iphone-1e62f84ddbc9"><meta name="robots" content="noindex"><title>复位 · 更新修复</title><style>
+  :root{color-scheme:light dark;font:16px/1.7 system-ui;background:#f2f2f7;color:#202129}*{box-sizing:border-box}body{margin:0;padding:calc(32px + env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) calc(32px + env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left))}main{max-width:520px;margin:6vh auto;padding:24px;background:#fff;border:1px solid #dddde5;border-radius:18px}h1{font-size:25px;margin:8px 0 16px}.eyebrow{font-size:12px;color:#70737e}p{margin:12px 0}#status{padding:14px;background:#f2f2f7;border-radius:10px}button,a{font:inherit}button{min-height:48px;padding:10px 16px;border:1px solid #c7cad5;border-radius:10px;background:#eef0f7;color:inherit;cursor:pointer}button:disabled{opacity:.5;cursor:default}#apply{background:#435880;color:#fff;border-color:transparent}label{display:flex;gap:10px;align-items:flex-start;margin:18px 0}input{width:20px;height:20px;margin-top:4px;flex-shrink:0}.actions{display:flex;gap:10px;flex-wrap:wrap}a{color:#435880}.note{font-size:13px;color:#666976}[hidden]{display:none!important}@media(prefers-color-scheme:dark){:root{background:#08090b;color:#e3e4e9}main{background:#16171c;border-color:#33363f}#status,button{background:#242630}a{color:#b8c7e6}.note,.eyebrow{color:#b1b4be}}
+  </style></head><body><main><div class="eyebrow">复位 · 版本 6.10.1</div><h1>更新修复</h1><p>此页面会重新连接服务器，准备最新版应用文件。</p><p class="note">请先结束练习并保存编辑。更新会保留本机记录、设置和备份。</p><p id="status" role="status">点击下方按钮检查并准备更新。</p><div id="confirm-wrap" hidden><label><input id="confirm" type="checkbox"><span>已结束练习并保存编辑，现在更新。</span></label></div><div class="actions"><button id="check" type="button">检查并准备更新</button><button id="apply" type="button" hidden disabled>更新并返回复位</button></div><p class="note" id="details"></p><p><a href="./">返回复位</a></p></main><script>(function runRecoveryPage() {
+  "use strict";
+  const byId = id => document.getElementById(id);
+  const status = byId("status"), details = byId("details"), check = byId("check"), apply = byId("apply"), confirm = byId("confirm"), confirmWrap = byId("confirm-wrap");
+  const base = new URL("./", location.href), script = new URL("sw.js", base);
+  let registration = null, latest = null;
+  const ourWorker = worker => worker && new URL(worker.scriptURL).href === script.href;
+  function deadline(promise, message, ms = 20000) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(message)), ms);
+      Promise.resolve(promise).then(value => { clearTimeout(timer); resolve(value); }, error => { clearTimeout(timer); reject(error); });
+    });
+  }
+  function waitForWorker(worker, states = ["installed", "activated"]) {
+    if (!worker || states.includes(worker.state)) return Promise.resolve();
+    return new Promise((resolve, reject) => {
+      const finish = error => { clearTimeout(timer); worker.removeEventListener("statechange", changed); if (error) reject(error); else resolve(); };
+      const changed = () => { if (worker.state === "redundant") finish(new Error("新版文件下载失败，请重试。")); else if (states.includes(worker.state)) finish(); };
+      const timer = setTimeout(() => finish(new Error("下载或启动尚未完成，请保持联网后重试。")), 30000);
+      worker.addEventListener("statechange", changed); changed();
+    });
+  }
+  function query(worker) {
+    if (!ourWorker(worker)) return Promise.reject(new Error("尚未连接到复位，请检查并准备更新。"));
+    return new Promise((resolve, reject) => {
+      const channel = new MessageChannel();
+      const finish = (value, error) => { clearTimeout(timer); channel.port1.close(); if (error) reject(error); else resolve(value); };
+      const timer = setTimeout(() => finish(null, new Error("应用响应较慢，请关闭旧的复位窗口后重试。")), 12000);
+      channel.port1.onmessage = event => {
+        const data = event.data;
+        if (data?.type === "PWA_VERSION" && typeof data.version === "string" && typeof data.offlineReady === "boolean") finish(data);
+      };
+      channel.port1.start();
+      try { worker.postMessage({type:"GET_VERSION"}, [channel.port2]); } catch (error) { finish(null, error); }
+    });
+  }
+  function safeToUpdate() {
+    try {
+      if (localStorage.getItem("reset:html-v1:import-transaction")) throw new Error("备份正在恢复，请完成后再更新。");
+      const raw = localStorage.getItem("reset:html-v1:main");
+      let main = null; try { main = raw ? JSON.parse(raw) : null; } catch { /* Updating does not overwrite unreadable records. */ }
+      if (main?.activeSession) throw new Error("请先返回复位结束练习或计时，再更新。");
+    } catch (error) {
+      if (error instanceof Error && /备份正在恢复|结束练习/.test(error.message)) throw error;
+    }
+  }
+  check.onclick = async () => {
+    check.disabled = true; apply.hidden = true; confirmWrap.hidden = true; confirm.checked = false;
+    status.textContent = "正在连接服务器并准备新版文件…"; details.textContent = "";
+    try {
+      if (!("serviceWorker" in navigator)) throw new Error("请用 Safari 打开此更新页后重试。");
+      const url = new URL("version.json", base); url.searchParams.set("check", String(Date.now()));
+      const controller = new AbortController();
+      try {
+        latest = await deadline(fetch(url.href, {cache:"no-store", signal:controller.signal}).then(async response => {
+          if (!response.ok) throw new Error("未能连接更新文件，请确认 Safari 可以打开本站后重试。");
+          return response.json();
+        }), "连接更新文件超时，请稍后重试。");
+      } finally { controller.abort(); }
+      if (!/^iphone-[a-z0-9-]+$/.test(latest.build) || typeof latest.appVersion !== "string") throw new Error("更新信息暂未就绪，请稍后重试。");
+      details.textContent = `服务器版本 ${latest.appVersion} · ${latest.build}`;
+      registration = await deadline(navigator.serviceWorker.register(script.href, {scope:base.href, updateViaCache:"none"}), "连接应用更新超时，请重试。");
+      if (new URL(registration.scope).href !== base.href) throw new Error("更新地址不匹配，请从原网址打开。");
+      let updateError;
+      try { await deadline(registration.update(), "检查更新超时，请重试。"); } catch (error) { updateError = error; }
+      await waitForWorker(registration.installing);
+      const worker = registration.waiting || registration.active;
+      await waitForWorker(worker);
+      const version = await query(worker);
+      if (version.version !== latest.build) throw new Error(updateError ? "新版文件未能下载，请确认 Safari 可以连接本站后重试。" : "服务器文件仍在同步，请稍后点检查重试。现有记录保持原样。");
+      if (!version.offlineReady) throw new Error("新版文件尚未下载完整，请保持联网后重试。");
+      status.textContent = registration.waiting ? "新版文件已准备好，确认后即可更新。" : "最新版文件已准备好，确认后可返回复位。";
+      confirmWrap.hidden = false; apply.hidden = false; apply.disabled = true;
+    } catch (error) { status.textContent = error instanceof Error ? error.message : "更新尚未完成，请稍后重试。"; }
+    finally { check.disabled = false; }
+  };
+  confirm.onchange = () => { apply.disabled = !confirm.checked; };
+  apply.onclick = async () => {
+    if (!confirm.checked || !registration || !latest) return;
+    apply.disabled = true; check.disabled = true;
+    try {
+      safeToUpdate();
+      const worker = registration.waiting || registration.active;
+      const version = await query(worker);
+      if (version.version !== latest.build || !version.offlineReady) throw new Error("新版文件状态已变化，请重新检查。");
+      if (registration.waiting) {
+        const activated = waitForWorker(worker, ["activated"]);
+        worker.postMessage({type:"SKIP_WAITING"});
+        await activated;
+      }
+      safeToUpdate();
+      status.textContent = "更新完成，正在返回复位…";
+      location.replace(base.href);
+    } catch (error) { status.textContent = error instanceof Error ? error.message : "更新未完成，请重新检查。"; apply.disabled = !confirm.checked; check.disabled = false; }
+  };
+})();</script></body></html>

@@ -8,6 +8,14 @@
   const urls = precache.map(path => new URL(path, scope).href);
   const allowed = new Set(urls);
   const indexURL = new URL("index.html", scope).href;
+  // A distinct CDN key prevents a fresh worker from receiving an old HTML
+  // document during Pages propagation. Store it under the canonical cache key.
+  function shellRequestURL(url) {
+    if (url !== indexURL) return url;
+    const fresh = new URL(url);
+    fresh.searchParams.set("__reset_build", version);
+    return fresh.href;
+  }
 
   function recoveryClient(scopeURL) {
     const button = document.getElementById("repair");
@@ -83,8 +91,9 @@
   async function fetchShell() {
     // Fetch and validate every response before writing any shell entries.
     return Promise.all(urls.map(async url => {
-      const response = await fetch(new Request(url, { cache: "reload", credentials: "same-origin", redirect: "error" }));
-      if (!response.ok || response.type === "opaque" || (response.url && response.url !== url)) throw new Error(`App asset unavailable: ${url}`);
+      const requestURL = shellRequestURL(url);
+      const response = await fetch(new Request(requestURL, { cache: "no-store", credentials: "same-origin", redirect: "error" }));
+      if (!response.ok || response.type === "opaque" || (response.url && response.url !== requestURL)) throw new Error(`App asset unavailable: ${url}`);
       if (url === indexURL && !(await response.clone().text()).includes(`<meta name="app-build" content="${version}">`)) throw new Error("App deployment changed during installation.");
       return response;
     }));
@@ -168,7 +177,7 @@
         // A controlled client must never combine another version's HTML and assets.
         // If the OS evicted the shell, accept a network recovery only for this build.
         try {
-          const response = await fetch(new Request(indexURL, { cache: "no-store", credentials: "same-origin", redirect: "error" }));
+          const response = await fetch(new Request(shellRequestURL(indexURL), { cache: "no-store", credentials: "same-origin", redirect: "error" }));
           if (response.ok && (await response.clone().text()).includes(`<meta name="app-build" content="${version}">`)) {
             await cache.put(indexURL, response.clone());
             return response;
@@ -194,4 +203,4 @@
       return response;
     })());
   });
-})({"version":"iphone-4fe485c87195","precache":["index.html","assets/app.ef1b3e8892f5.js","assets/app.0a87d724c74b.css","manifest.webmanifest","icons/icon.svg","icons/icon-192.png","icons/icon-512.png","icons/apple-touch-icon.png"]});
+})({"version":"iphone-1e62f84ddbc9","precache":["index.html","assets/app.60cdde57e778.js","assets/app.0a87d724c74b.css","manifest.webmanifest","icons/icon.svg","icons/icon-192.png","icons/icon-512.png","icons/apple-touch-icon.png"]});
