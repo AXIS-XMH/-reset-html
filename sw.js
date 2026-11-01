@@ -203,4 +203,4 @@
       return response;
     })());
   });
-})({"version":"iphone-1efcd93d54a3","precache":["index.html","assets/app.4ffcdad8f7d7.js","assets/app.0a87d724c74b.css","manifest.webmanifest","icons/icon.svg","icons/icon-192.png","icons/icon-512.png","icons/apple-touch-icon.png"]});
+})({"version":"iphone-3679a15f9aff","precache":["index.html","assets/app.5f701a4dc61d.js","assets/app.52f356652ac8.css","manifest.webmanifest","icons/icon.svg","icons/icon-192.png","icons/icon-512.png","icons/apple-touch-icon.png","startup-iphone-13-pro-max-v410.png"]});

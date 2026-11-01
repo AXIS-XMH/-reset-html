@@ -1,1 +1,46 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="bg" x2=".7" y2="1"><stop stop-color="#2b303b"/><stop offset="1" stop-color="#090a0d"/></linearGradient></defs><rect width="512" height="512" fill="url(#bg)"/><circle cx="256" cy="256" r="163" fill="none" stroke="#ffffff" stroke-opacity=".09"/><path d="M179.04 157.50 A125 125 0 1 1 131.48 245.11" fill="none" stroke="#dde5f3" stroke-width="32" stroke-linecap="round"/><circle cx="256" cy="256" r="76" fill="none" stroke="#dde5f3" stroke-opacity=".18" stroke-width="3"/><circle cx="256" cy="256" r="41" fill="#e8edf7"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="base" x1="128" y1="72" x2="896" y2="952" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2B303B"/>
+      <stop offset="0.46" stop-color="#171A22"/>
+      <stop offset="1" stop-color="#090A0D"/>
+    </linearGradient>
+    <radialGradient id="ambient" cx="0" cy="0" r="1" gradientTransform="translate(350 238) rotate(48) scale(618)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DDE7FF" stop-opacity="0.22"/>
+      <stop offset="0.5" stop-color="#9EAED2" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#77829E" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ring" x1="316" y1="294" x2="760" y2="778" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.96"/>
+      <stop offset="0.5" stop-color="#DCE6FA" stop-opacity="0.78"/>
+      <stop offset="1" stop-color="#AEBBD6" stop-opacity="0.52"/>
+    </linearGradient>
+    <radialGradient id="core" cx="0" cy="0" r="1" gradientTransform="translate(484 474) rotate(48) scale(142)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="0.38" stop-color="#E8EDF7"/>
+      <stop offset="1" stop-color="#AAB6CE"/>
+    </radialGradient>
+    <filter id="ringShadow" x="178" y="170" width="684" height="704" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="26" flood-color="#000000" flood-opacity="0.34"/>
+      <feDropShadow dx="-6" dy="-9" stdDeviation="12" flood-color="#E9F0FF" flood-opacity="0.12"/>
+    </filter>
+    <filter id="coreShadow" x="374" y="374" width="276" height="292" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.42"/>
+      <feDropShadow dx="-5" dy="-7" stdDeviation="8" flood-color="#FFFFFF" flood-opacity="0.26"/>
+    </filter>
+  </defs>
+  <rect width="1024" height="1024" fill="url(#base)"/>
+  <rect width="1024" height="1024" fill="url(#ambient)"/>
+  <circle cx="512" cy="512" r="329" fill="#FFFFFF" fill-opacity="0.035" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
+  <path
+    d="M358 323A250 250 0 1 1 270 492"
+    fill="none"
+    stroke="url(#ring)"
+    stroke-width="68"
+    stroke-linecap="round"
+    filter="url(#ringShadow)"
+  />
+  <circle cx="519" cy="514" r="152" fill="#FFFFFF" fill-opacity="0.025" stroke="#F0F4FF" stroke-opacity="0.16" stroke-width="8"/>
+  <circle cx="519" cy="514" r="82" fill="url(#core)" filter="url(#coreShadow)"/>
+  <ellipse cx="490" cy="484" rx="28" ry="19" fill="#FFFFFF" fill-opacity="0.38" transform="rotate(-28 490 484)"/>
+</svg>

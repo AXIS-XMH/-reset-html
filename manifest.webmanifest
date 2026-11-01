@@ -2,7 +2,7 @@
   "id": "./",
   "name": "复位",
   "short_name": "复位",
-  "description": "iPhone 上的阶段、修复、供给与降载工具。数据保存在本机。",
+  "description": "按时间调度，按事件接续修复、供给与降载。",
   "lang": "zh-CN",
   "start_url": "./",
   "scope": "./",
