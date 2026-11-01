@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" id="app-theme-color" content="#f2f2f7">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="复位">
+<meta name="app-build" content="iphone-26914794ac1c">
+<meta name="description" content="复位 iPhone 版：阶段、修复、供给、降载及本机数据备份。">
+<title>复位</title>
+<script>(()=>{var d="html-v1";function y(){let o="system",h="20:00",g="08:00";try{let e=JSON.parse(localStorage.getItem(`reset:${d}:boot-preferences`)??"null"),c=/^(?:[01]\d|2[0-3]):[0-5]\d$/;if(e&&["system","light","dark"].includes(e.theme)&&c.test(e.recoveryStart)&&c.test(e.recoveryEnd))o=e.theme,h=e.recoveryStart,g=e.recoveryEnd;else{let r=localStorage.getItem(`reset:${d}:theme`);(r==="light"||r==="dark")&&(o=r)}}catch{}let m=e=>{let[c,r]=e.split(":").map(Number);return c*60+r},p=new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Shanghai",hour:"2-digit",minute:"2-digit",hourCycle:"h23"}).format(new Date),a=m(p),n=m(h),s=m(g),u=n===s||(n<s?a>=n&&a<s:a>=n||a<s),l=o==="dark"||o==="system"&&(matchMedia("(prefers-color-scheme: dark)").matches||u),i=l?"#000000":"#f2f2f7",t=document.documentElement;t.dataset.theme=o,t.dataset.pwaStandalone=String(matchMedia("(display-mode: standalone)").matches||navigator.standalone===!0),t.dataset.chromeScheme=l?"dark":"light",t.classList.toggle("night-context",u),t.style.backgroundColor=i,t.style.colorScheme=l?"dark":"light",t.style.setProperty("--system-chrome-bg",i),document.querySelector('meta[name="theme-color"]')?.setAttribute("content",i)}y();})();
+</script>
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" sizes="180x180">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="stylesheet" href="./assets/app.0a87d724c74b.css">
+</head>
+<body style="background-color:var(--system-chrome-bg,#f2f2f7)">
+<div class="system-chrome-layer" aria-hidden="true"></div>
+<div id="root"><main style="padding:calc(24px + env(safe-area-inset-top)) 24px;font:16px system-ui;line-height:1.6"><p id="boot-message">正在打开复位…</p><button id="boot-retry" hidden type="button" style="min-height:44px;padding:8px 20px" onclick="location.reload()">重新打开</button></main></div>
+<noscript>复位需要启用 JavaScript。请使用 iPhone 的 Safari 打开此网址。</noscript>
+<script defer src="./assets/app.e383041e08a8.js" onerror="document.getElementById('boot-message').textContent='应用文件尚未加载完成，请联网后重试。';document.getElementById('boot-retry').hidden=false"></script>
+</body>
+</html>
